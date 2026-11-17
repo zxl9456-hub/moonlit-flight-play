@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta name="flight-build" content="2.9.3">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1520">
+  <meta name="description" content="在暮光下骑上扫帚，穿越金色光环，环绕魔法城堡。为手机触控设计的 3D 飞行小游戏。">
+  <title>暮光飞行课 · 魔法城堡</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <audio id="flight-music"  preload="auto" loop hidden></audio>
+  <canvas id="scene" aria-label="魔法城堡与扫帚飞行场景"></canvas>
+  <div class="vignette"></div><div class="grain"></div>
+  <header id="brand"><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M22 3 38 12v17L22 41 6 29V12Z M22 8v27 M11 15l22 14 M33 15 11 29"/><circle cx="22" cy="22" r="8"/></svg><div>暮 光 飞 行 课<small>THE GOLDEN FLIGHT</small></div></header>
+  <nav class="top-actions"><button id="sound" class="icon-button" aria-label="关闭音乐与音效" title="音乐与音效">♪<span class="sound-off"></span></button><button id="help" class="icon-button" aria-label="玩法说明">?</button><button id="pause" class="icon-button hidden" aria-label="暂停">Ⅱ</button></nav>
+
+  <button id="gift-entry" type="button" aria-label="打开关注礼"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M4 12h20v5H4Zm2 5v9h16v-9M14 12v14M14 12C5 12 4 3 9 3c4 0 5 9 5 9Zm0 0s1-9 5-9c5 0 4 9-5 9Z"/></svg><span>关注礼</span><i></i></button>
+  <main id="home">
+    <div class="chapter"><span></span> A PIXEL TALE · GOLDEN HOUR <span></span></div>
+    <h1>日落前，<br>乘魔法<span class="gold">飞行。</span></h1>
+    <p class="intro">穿过落日与金色光环，<br>飞向湖畔的魔法城堡。</p>
+    <div class="difficulty" role="group" aria-label="选择游戏模式"><button id="mode-challenge" class="selected" aria-pressed="true">黑魔法挑战 <small>六大魔法奇遇</small></button><button id="mode-lesson" aria-pressed="false">环城练习 <small>练习 · 追光</small></button><button id="mode-trial" aria-pressed="false">60 秒挑战 <small>竞速 · 避雷</small></button><button id="mode-explore" aria-pressed="false">城堡漫游 <small>自由转向 · 落地寻宝</small></button></div>
+    <div class="home-rule"><span class="tiny-star">✧</span> 活点密道 · 三强夺蛋 · 守护神</div>
+    <div class="play-options"><button id="control-mode" aria-label="切换飞行控制">控制：方向键</button><button id="auto-fire" aria-pressed="true">自动烈焰：开</button></div>
+    <button id="broom-select" class="broom-select" aria-label="选择扫帚与专属技能">✦ 追日者 · 金羽星芒　›</button>
+    <p class="storm-rule">⚡ 金色雷区出现时及时横移 · 雷击直接死亡</p>
+    <button id="start" class="primary" disabled><span id="start-label">正在唤醒魔法…</span><span class="arrow">↗</span></button>
+    <div class="start-note"><span class="live-dot"></span> 三章冒险 · 追光竞速 · 连击爆发 <span class="note-divider">/</span> 手机 · 电脑均可玩 · ♪ 配乐</div>
+  </main>
+  <div id="world-label"><span class="line"></span><span>01 / THE BLACK LAKE<small>黑湖上空 · 金色黄昏</small></span></div>
+  <footer id="home-footer"><span>一堂不在课表里的飞行课</span><span id="best-home">首次飞行，等你出发</span></footer>
+
+  <section id="hud" class="hidden" aria-label="飞行状态">
+    <div id="hud-top">
+      <div id="hud-overview">
+        <div class="flight-top"><div class="score-block"><span class="micro">光环收集</span><strong><span id="rings-value">0</span><em> / 54</em></strong><span id="goal-text">光环奖励魔力与连击</span></div><div class="time-block"><span class="micro">飞行时间</span><strong id="time-value">00:00</strong><div id="hearts" aria-label="3 层护盾">◆ ◆ ◆</div></div><button id="race-details" aria-label="展开排名与飞行成绩">4 / 4 ▾</button></div>
+        <div id="mission-panel"><span id="chapter-kicker">第一章 · 1 / 3</span><strong id="mission-title">追捕金飞贼</strong><span id="mission-sub">对准金飞贼，长按加速</span><div id="style-bar"><span id="style-label">精准动作 · 三次爆发</span><span id="style-pips" aria-label="爆发能量 0 / 3">◇ ◇ ◇</span></div></div>
+        <div class="route-progress"><div id="progress-fill"></div><span id="lap-value">第 1 / 3 圈</span><span>环游城堡</span></div>
+      </div>
+      <div id="hud-feedback">
+        <div id="boss-hud" class="hidden"><div><span>伏地魔 <em id="boss-stage">Ⅰ · 追击</em></span><small id="boss-status">锁定前保持移动</small></div><div class="boss-life"><i id="boss-life"></i></div></div>
+        <div id="ring-guide"><span id="guide-arrow">◇</span><span id="guide-text">跟随金色光环</span><span id="guide-meter" class="hidden"><i id="guide-progress"></i></span></div>
+        <div id="toast" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+    <div id="ability-chips"></div><div id="lock-hint"></div>
+    <div id="adventure-hud"><span title="捕获金飞贼">✦ <b id="snitch-count">0</b>/3</span><span title="擦身闪避">↯ <b id="dodge-count">0</b></span><span title="完美通过捷径">⌁ <b id="shortcut-count">0</b>/3</span><small id="counter-ready"></small></div>
+    <div class="flight-bottom"><div class="instrument"><span id="speed-value">0</span><small>KM/H</small></div><div class="energy"><span>魔力</span><div><i id="energy-fill"></i></div></div><div class="instrument altitude"><span id="altitude-value">0</span><small>高度 M</small></div></div>
+  </section>
+  <section id="controls" class="hidden" aria-label="触屏飞行控制">
+    <div class="joystick-wrap"><div id="joystick" role="group" aria-label="飞行摇杆，拖动控制方向与高度"><div class="stick-cross"></div><div id="stick"></div><span>✧</span></div><small>拖动 · 控制飞行</small></div>
+    <div class="dpad" role="group" aria-label="方向键"><button data-dir="up" aria-label="向上飞行">↑</button><button data-dir="left" aria-label="向左飞行">←</button><span>方向</span><button data-dir="right" aria-label="向右飞行">→</button><button data-dir="down" aria-label="向下飞行">↓</button></div>
+    <div class="skills"><button id="skill-fire" aria-label="施放烈焰咒"><b>☄</b><span>烈焰</span><small id="cost-fire">9 魔力</small></button><button id="skill-lightning" aria-label="施放雷霆咒"><b>ϟ</b><span>雷霆</span><small id="cost-lightning">40 魔力</small></button><button id="skill-shield" aria-label="施放护身咒"><b>◇</b><span>护身</span><small id="cost-shield">35 魔力</small></button><button id="skill-broom" aria-label="逐日冲刺，已就绪"><b id="broom-icon">✦</b><span id="broom-skill-name">冲刺</span><small id="cost-broom"></small></button></div>
+    <div class="explore-actions"><button id="explore-hover" aria-label="继续向前飞行"><b>▷</b><span>前进</span></button><button id="explore-action" aria-label="在发光平台降落"><b>↓</b><span>降落</span></button></div>
+    <div class="boost-wrap"><button id="boost" aria-label="长按加速"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="m18 3-10 15h8l-2 11 11-16h-9Z"/></svg></button><small>长按 · 魔力加速</small></div>
+    <span class="keyboard-note">W A S D / 方向键 飞行 <b>·</b> 空格 加速 <b>·</b> 自动烈焰 · 2 雷霆 · 3 护身 <b>·</b> P 暂停</span>
+  </section>
+  <div id="magic-tools" aria-label="魔法道具"><button id="magic-map" aria-label="打开活点地图" title="M 活点地图"><span>⌁</span><small>地图</small></button><button id="magic-time" aria-label="时间转换器，倒流三秒，每局一次" title="R 倒流"><span>↶</span><small>倒流</small></button></div>
+  <aside id="magic-map-panel" class="hidden" aria-label="活点地图密道提示"><b>活点地图</b><svg viewBox="0 0 200 94" aria-hidden="true"><path d="M100 88Q28 42 32 8M100 88V8M100 88Q174 48 168 8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M100 88Q70 52 108 36T100 8" fill="none" stroke="#734494" stroke-width="3" stroke-dasharray="4 4"/><circle cx="100" cy="10" r="6" fill="#734494"/><path d="m95 27 5-8 5 8" fill="none" stroke="#734494" stroke-width="2"/></svg><span>居中向上 · 进入紫色密道</span></aside>
+  <div id="magic-fx" aria-hidden="true"></div>
+  <div id="focus-glow"></div><div id="flash"></div>
+  <div id="countdown" class="hidden"></div>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card"><div class="card-ornament">✧</div><span id="modal-eyebrow" class="chapter">FLIGHT JOURNAL</span><h2 id="modal-title"></h2><div id="modal-content"></div><div id="modal-buttons"></div></div>
+  </div>
+  <section id="follow-gift" class="hidden" role="dialog" aria-modal="true" aria-labelledby="gift-title" aria-describedby="gift-description">
+    <div class="gift-card">
+      <button id="gift-close" type="button" aria-label="关闭关注礼">×</button>
+      <div class="gift-art" aria-hidden="true">
+        <span class="gift-edition">暮光飞行课 · 关注礼</span>
+        <svg viewBox="0 0 360 218" class="gift-broom">
+          <defs><radialGradient id="gift-halo"><stop stop-color="#698bd4" stop-opacity=".6"/><stop offset="1" stop-color="#172237" stop-opacity="0"/></radialGradient><linearGradient id="gift-tail" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#7294e9" stop-opacity="0"/><stop offset=".65" stop-color="#a4f2ff"/><stop offset="1" stop-color="#fff2b9"/></linearGradient><linearGradient id="gift-wood" x2="0" y2="1"><stop stop-color="#efd09a"/><stop offset=".45" stop-color="#956b42"/><stop offset="1" stop-color="#3c2b36"/></linearGradient><path id="gift-star" d="M0-7 1.8-1.8 7 0 1.8 1.8 0 7-1.8 1.8-7 0-1.8-1.8Z"/></defs>
+          <ellipse cx="180" cy="112" rx="170" ry="104" fill="url(#gift-halo)"/>
+          <g fill="none" stroke="#b8b3df" stroke-opacity=".22"><ellipse cx="184" cy="110" rx="116" ry="73" transform="rotate(-16 184 110)"/><ellipse cx="184" cy="110" rx="110" ry="68" transform="rotate(23 184 110)"/><path d="m45 54 36 26 32-42m169 112 26-35 21 45"/></g>
+          <g class="gift-stars" fill="#d1efff"><use href="#gift-star" x="52" y="147"/><use href="#gift-star" x="113" y="158"/><use href="#gift-star" x="85" y="119"/><use href="#gift-star" x="146" y="183"/><use href="#gift-star" x="289" y="45"/><use href="#gift-star" x="310" y="91"/><circle cx="46" cy="54" r="2"/><circle cx="112" cy="38" r="2"/><circle cx="329" cy="160" r="2"/><circle cx="233" cy="178" r="2"/></g>
+          <g fill="none" stroke="url(#gift-tail)" stroke-linecap="round"><path d="M16 200Q88 161 154 127" stroke-width="3"/><path d="M34 215Q93 172 166 133" stroke-width="2"/><path d="M12 175Q81 160 151 117" stroke-width="1"/></g>
+          <g transform="rotate(-30 190 110)"><path d="M144 104Q215 97 289 104Q299 105 301 97" fill="none" stroke="#241c2c" stroke-width="13" stroke-linecap="round"/><path d="M144 102Q215 95 289 102Q299 103 301 95" fill="none" stroke="url(#gift-wood)" stroke-width="8" stroke-linecap="round"/><path d="M145 93Q123 84 66 91L49 105 61 121Q112 127 145 111Z" fill="#9c724b" stroke="#392a32" stroke-width="2"/><g stroke="#e1bb73" stroke-width="2" fill="none"><path d="M137 96Q102 94 64 99M136 101 59 108M136 106Q101 116 66 117"/></g><path d="m139 91 7 1-2 21-7 1Z" fill="#f3d790"/><path d="M157 96v13m6-14v13" stroke="#eecf88" stroke-width="2"/></g>
+          <g fill="#ffe5a1"><use href="#gift-star" x="140" y="137"/><use href="#gift-star" x="70" y="177"/><circle cx="102" cy="190" r="2"/><circle cx="33" cy="187" r="2"/></g>
+        </svg>
+        <div class="gift-art-label"><span>✦</span> 星 河 尾 迹 <span>✦</span></div>
+      </div>
+      <div class="gift-copy">
+        <p class="gift-kicker">一份送给飞行同伴的礼物</p>
+        <h2 id="gift-title">把星光，留在身后</h2>
+        <p id="gift-description">关注作者，领取专属「星河尾迹」</p>
+        <p class="gift-detail">蓝金星光 · 飞行外观 · 全扫帚通用</p>
+        <button id="gift-claim" type="button">关注作者 · 领取</button>
+        <p id="gift-notice" role="status" aria-live="polite"></p>
+        <button id="gift-skip" type="button">先去飞行</button>
+        <button id="gift-toggle" type="button" class="hidden">恢复扫帚原色</button>
+      </div>
+    </div>
+  </section>
+  <div id="error" class="hidden">当前设备无法启动 3D 画面，请退出小工具后重新打开。</div>
+  <script src="boot.js" defer></script>
+</body>
+</html>
